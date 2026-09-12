@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-brand-50: oklch(0.97 0.02 250);
+  --color-brand-100: oklch(0.94 0.04 250);
+  --color-brand-300: oklch(0.78 0.11 250);
+  --color-brand-500: oklch(0.58 0.17 250);
+  --color-brand-600: oklch(0.51 0.17 250);
+  --color-brand-700: oklch(0.44 0.15 250);
+  --color-brand-900: oklch(0.28 0.09 250);
+}
+
+@layer base {
+  :root {
+    --surface: oklch(0.99 0.003 250);
+    --surface-raised: oklch(1 0 0);
+    --border: oklch(0.91 0.006 250);
+    --text: oklch(0.25 0.02 250);
+    --text-muted: oklch(0.52 0.02 250);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: oklch(0.19 0.015 255);
+      --surface-raised: oklch(0.23 0.018 255);
+      --border: oklch(0.32 0.02 255);
+      --text: oklch(0.95 0.005 250);
+      --text-muted: oklch(0.68 0.015 250);
+      color-scheme: dark;
+    }
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    /* iOS Safari: keep the check-in button clear of the home indicator. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
+  }
+}
+
+/* Tailwind v4 note: a class defined inside `@layer components` is NOT visible to
+   `@apply`. Shared building blocks therefore have to be declared with
+   `@utility`, which registers a real utility that `@apply` can compose. */
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+
+@layer components {
+  .card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 0.875rem;
+  }
+
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .btn-primary {
+    @apply btn;
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+
+  .btn-primary:hover:not(:disabled),
+  .btn-primary:active:not(:disabled) {
+    background: var(--color-brand-700);
+  }
+
+  .btn-ghost {
+    @apply btn;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+  }
+
+  .input {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    outline: none;
+  }
+
+  .input:focus {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 35%, transparent);
+  }
+
+  .label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+}
+
+/* The camera preview is mirrored so it behaves like a mirror for the user.
+   The frames fed to the model come from the unmirrored video element, so this
+   is purely cosmetic and never affects the embedding. */
+.mirror {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

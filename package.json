@@ -1,0 +1,51 @@
+{
+  "name": "face-attendance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open-source facial-recognition attendance monitoring. Browser-side face embeddings, Supabase + pgvector, deployable on free tiers.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fetch:models": "node scripts/fetch-models.mjs",
+    "postinstall": "node scripts/fetch-models.mjs --quiet || true",
+    "db:push": "npx --yes supabase@latest db push",
+    "db:reset": "npx --yes supabase@latest db reset",
+    "db:types": "npx --yes supabase@latest gen types typescript --linked > src/lib/database.types.ts",
+    "db:verify": "bash supabase/tests/run.sh",
+    "db:link": "npx --yes supabase@latest link",
+    "db:diff": "npx --yes supabase@latest db diff",
+    "verify:models": "node scripts/fetch-models.mjs --check"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "1.0.1",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.116.0",
+    "date-fns": "4.4.0",
+    "date-fns-tz": "3.2.0",
+    "next": "16.3.5",
+    "onnxruntime-web": "1.29.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.20.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.5",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

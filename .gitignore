@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+.vercel
+# Model weights are fetched at install time, never committed (~16 MB)
+public/models/*
+!public/models/.gitkeep
+public/ort/*
+!public/ort/.gitkeep
+coverage/
+supabase/.temp/

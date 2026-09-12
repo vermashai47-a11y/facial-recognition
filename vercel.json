@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "crons": [
+    {
+      "path": "/api/cron/close-open-sessions",
+      "schedule": "30 20 * * *"
+    }
+  ]
+}
