@@ -14,8 +14,8 @@
  * Run:  npm run fetch:models
  *       npm run fetch:models -- --force     re-download even if present
  *       npm run fetch:models -- --full      also copy the WebGPU + non-SIMD
- *                                           runtimes (+39 MB, needs a paid plan
- *                                           or self-hosting to stay in limits)
+ *                                           runtimes (+39 MB; also requires
+ *                                           changing the embedder's import)
  */
 
 import { createWriteStream } from 'node:fs';
@@ -76,8 +76,11 @@ const DOWNLOADS = [
  *   vision_wasm_internal.{wasm,js}      12 MB  MediaPipe's SIMD build
  *
  * `--full` additionally copies the WebGPU (jsep) provider and MediaPipe's
- * non-SIMD fallback, for ~+39 MB. Worth it only if you are self-hosting or on a
- * paid plan and want the extra speed on WebGPU-capable phones.
+ * non-SIMD fallback, for ~+39 MB. Note that copying those files is not on its
+ * own enough to use WebGPU: src/lib/face/embedder.ts imports
+ * 'onnxruntime-web/wasm', and that import must change to
+ * 'onnxruntime-web/webgpu' as well. Worth it only when self-hosting or on a
+ * paid plan, since the extra bytes exceed Vercel Hobby's 100 MB cap.
  */
 const FULL = args.has('--full');
 

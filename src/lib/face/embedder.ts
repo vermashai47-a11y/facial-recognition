@@ -10,13 +10,25 @@
  * there is no GPU to rent because the phone already has one.
  */
 
-import * as ort from 'onnxruntime-web';
+// The '/wasm' entry point, not the bare package, and this is load-bearing.
+// Importing 'onnxruntime-web' pulls ort.bundle.min.mjs, which is the
+// WebGPU-capable build and unconditionally fetches
+// `ort-wasm-simd-threaded.jsep.mjs` — a 28 MB companion binary that
+// scripts/fetch-models.mjs deliberately does not ship, because it would push a
+// deployment past Vercel's 100 MB static-upload cap. The result was a 404 and
+// "no available backend found" at capture time, regardless of which execution
+// providers were requested below. The '/wasm' entry fetches
+// `ort-wasm-simd-threaded.mjs` instead, which is shipped.
+//
+// To run on WebGPU: switch this import to 'onnxruntime-web/webgpu', run
+// `npm run fetch:models -- --full`, and host somewhere without the 100 MB cap.
+import * as ort from 'onnxruntime-web/wasm';
 import { MODEL_PATHS, EMBEDDING_DIM } from './constants';
 import { imageDataToTensor, ALIGNED_SIZE } from './align';
 import { l2Normalize } from './math';
 
 let sessionPromise: Promise<ort.InferenceSession> | null = null;
-let activeBackend: 'webgpu' | 'wasm' | null = null;
+let activeBackend: 'wasm' | null = null;
 
 function configureRuntime(): void {
   ort.env.wasm.wasmPaths = MODEL_PATHS.ortWasm;
@@ -33,24 +45,6 @@ export async function getEmbedder(): Promise<ort.InferenceSession> {
   if (!sessionPromise) {
     sessionPromise = (async () => {
       configureRuntime();
-
-      // WebGPU is roughly 3-5x faster where it works, but its runtime is a
-      // separate 28 MB binary that `npm run fetch:models` only copies with
-      // `--full` — enough to push a Hobby deployment past Vercel's 100 MB
-      // static-upload cap. So it is opt-in, and a failure still falls back
-      // rather than throwing, since support is patchy on Android WebViews.
-      if (process.env.NEXT_PUBLIC_ENABLE_WEBGPU === 'true') {
-        try {
-          const s = await ort.InferenceSession.create(MODEL_PATHS.recognizer, {
-            executionProviders: ['webgpu'],
-            graphOptimizationLevel: 'all',
-          });
-          activeBackend = 'webgpu';
-          return s;
-        } catch {
-          // fall through to WASM
-        }
-      }
 
       const s = await ort.InferenceSession.create(MODEL_PATHS.recognizer, {
         executionProviders: ['wasm'],
@@ -70,7 +64,7 @@ export async function getEmbedder(): Promise<ort.InferenceSession> {
   return sessionPromise;
 }
 
-export function getActiveBackend(): 'webgpu' | 'wasm' | null {
+export function getActiveBackend(): 'wasm' | null {
   return activeBackend;
 }
 
