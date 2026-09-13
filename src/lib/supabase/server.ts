@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { supabaseConfig } from '@/lib/env';
 import type { Database } from '@/lib/types';
 
 /**
@@ -10,9 +11,18 @@ import type { Database } from '@/lib/types';
 export async function createClient() {
   const cookieStore = await cookies();
 
+  const config = supabaseConfig();
+  if (!config) {
+    throw new Error(
+      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and either ' +
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. ' +
+        'Open /setup for details.',
+    );
+  }
+
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    config.url,
+    config.key,
     {
       cookies: {
         getAll() {
